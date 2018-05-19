@@ -135,6 +135,10 @@ export function initEvents(s: Slides, plt: Platform): Function {
   };
 }
 
+export function viewReloadResize(s: Slides, plt: Platform, forceUpdatePagination: boolean) {
+	onResize(s, plt, forceUpdatePagination);
+}
+
 /*=========================
   Handle Clicks
   ===========================*/
@@ -834,7 +838,7 @@ let resizeId: number;
 function onResize(s: Slides, plt: Platform, forceUpdatePagination: boolean) {
   // TODO: hacky, we should use Resize Observer in the future
   if (resizeId) {
-    plt.cancelTimeout(resizeId);
+    // plt.cancelTimeout(resizeId); // Hotfix for the missing resize events with 2+ slides (it may break things, though)
     resizeId = null;
   }
   resizeId = plt.timeout(() => doResize(s, plt, forceUpdatePagination), 200);

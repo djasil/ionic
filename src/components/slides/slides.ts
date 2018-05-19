@@ -4,7 +4,7 @@ import { Config } from '../../config/config';
 import { enableKeyboardControl } from './swiper/swiper-keyboard';
 import { Ion } from '../ion';
 import { isTrueProperty } from '../../util/util';
-import { initEvents } from './swiper/swiper-events';
+import { initEvents, viewReloadResize } from './swiper/swiper-events';
 import { initZoom } from './swiper/swiper-zoom';
 import { Platform } from '../../platform/platform';
 import { SlideContainer, SlideElement, SlideTouchEvents, SlideTouches, SlideZoom } from './swiper/swiper-interfaces';
@@ -896,6 +896,14 @@ export class Slides extends Ion {
         subscription.unsubscribe();
         this._initSlides();
       });
+
+			var subscription1 = viewCtrl.didEnter.subscribe(function () {
+        this._resizeSlides();
+      });
+
+			var subscription2 = viewCtrl.willLeave.subscribe(function () {
+        this._savePortraitState();
+      });
     }
   }
 
@@ -927,6 +935,24 @@ export class Slides extends Ion {
     }
   }
 
+	resizeSlides = function () {
+		if (this._init) {
+			var s = this;
+			var plt = s._plt;
+
+			if(this._portraitBeforeLeave !== undefined && (this._portraitBeforeLeave !== plt._isPortrait || plt._isPortrait == null)) {
+				plt.timeout(function () { viewReloadResize(s, plt, false) }, 10);
+			}
+		}
+  };
+
+	savePortraitState = function () {
+		var s = this;
+		var plt = s._plt;
+
+		this._portraitBeforeLeave = plt._isPortrait;
+  };
+
   /**
    * @hidden
    */
@@ -956,7 +982,10 @@ export class Slides extends Ion {
 
   resize() {
     if (this._init) {
+      var s = this;
+      var plt = s._plt;
 
+      plt.timeout(function () { viewReloadResize(s, plt, false) }, 10);
     }
   }
 
